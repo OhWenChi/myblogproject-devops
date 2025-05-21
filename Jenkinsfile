@@ -9,6 +9,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo '=== Build Stage ==='
+                bat 'where python'
                 bat 'python -m venv $VENV_DIR'
                 bat '. $VENV_DIR/bin/activate && pip install -r requirements.txt'
             }
