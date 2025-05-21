@@ -54,8 +54,15 @@ pipeline {
         stage('Code Quality') {
             steps {
                 echo '=== Code Quality Stage ==='
-                bat 'call venv\\Scripts\\activate.bat && pip install flake8'
-                bat 'call venv\\Scripts\\activate.bat && flake8 .'
+
+                // Activate virtual environment
+                bat 'call venv\\Scripts\\activate.bat'
+
+                // Install flake8 inside virtual environment (if not already installed)
+                bat 'pip install flake8'
+
+                // Run flake8, excluding venv to avoid third-party library warnings
+                bat 'flake8 --exclude=venv .'
             }
         }
 
