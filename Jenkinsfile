@@ -10,9 +10,10 @@ pipeline {
             steps {
                 echo '=== Build Stage ==='
                 bat 'echo %PATH%'
+                bat 'set VENV_DIR=venv'
                 bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m venv $VENV_DIR'
                 bat 'dir /B'
-                bat 'call venv\\Scripts\\activate.bat && pip install -r requirements.txt'
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && pip install -r requirements.txt'
             }
         }
 
