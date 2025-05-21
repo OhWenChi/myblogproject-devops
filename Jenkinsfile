@@ -54,7 +54,8 @@ pipeline {
         stage('Code Quality') {
             steps {
                 echo '=== Code Quality Stage ==='
-                bat '. $VENV_DIR/bin/activate && pip install flake8 && flake8 .'
+                bat 'call venv\\Scripts\\activate.bat && pip install flake8'
+                bat 'call venv\\Scripts\\activate.bat && flake8 .'
             }
         }
 
