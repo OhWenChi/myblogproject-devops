@@ -9,29 +9,29 @@ pipeline {
         stage('Build') {
             steps {
                 echo '=== Build Stage ==='
-                sh 'python -m venv $VENV_DIR'
-                sh '. $VENV_DIR/bin/activate && pip install -r requirements.txt'
+                bat 'python -m venv $VENV_DIR'
+                bat '. $VENV_DIR/bin/activate && pip install -r requirements.txt'
             }
         }
 
         stage('Test') {
             steps {
                 echo '=== Test Stage ==='
-                sh '. $VENV_DIR/bin/activate && python -m unittest discover tests'
+                bat '. $VENV_DIR/bin/activate && python -m unittest discover tests'
             }
         }
 
         stage('Code Quality') {
             steps {
                 echo '=== Code Quality Stage ==='
-                sh '. $VENV_DIR/bin/activate && pip install flake8 && flake8 .'
+                bat '. $VENV_DIR/bin/activate && pip install flake8 && flake8 .'
             }
         }
 
         stage('Security') {
             steps {
                 echo '=== Security Scan ==='
-                sh '. $VENV_DIR/bin/activate && pip install safety && safety check || true'
+                bat '. $VENV_DIR/bin/activate && pip install safety && safety check || true'
             }
         }
 
