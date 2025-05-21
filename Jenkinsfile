@@ -67,7 +67,7 @@ pipeline {
 
                 // Install and run flake8, excluding venv for cleaner output
                 bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install flake8'
-                bat 'call venv\\Scripts\\activate.bat && flake8 --exclude=venv .'
+                bat 'call venv\\Scripts\\activate.bat && flake8 --exclude=venv,pip_vendor .'
             }
         }
 
