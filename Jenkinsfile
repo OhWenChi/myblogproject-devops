@@ -54,17 +54,20 @@ pipeline {
         stage('Code Quality') {
             steps {
                 echo '=== Code Quality Stage ==='
-        
+
+                // Ensure Python is detected correctly in Jenkins
+                bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" --version'
+
                 // Activate virtual environment
                 bat 'call venv\\Scripts\\activate.bat'
 
                 // Upgrade pip (if necessary)
-                bat 'python -m ensurepip'
-                bat 'python -m pip install --upgrade pip'
+                bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m ensurepip'
+                bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install --upgrade pip'
 
                 // Install and run flake8, excluding venv for cleaner output
-                bat 'python -m pip install flake8'
-                bat 'flake8 --exclude=venv .'
+                bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install flake8'
+                bat 'call venv\\Scripts\\activate.bat && flake8 --exclude=venv .'
             }
         }
 
