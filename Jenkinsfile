@@ -9,11 +9,24 @@ pipeline {
         stage('Build') {
             steps {
                 echo '=== Build Stage ==='
+
+                // Print PATH environment variable for debugging
                 bat 'echo %PATH%'
-                bat 'set VENV_DIR=venv'
-                bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m venv $VENV_DIR'
-                bat 'dir /B'
-                bat 'call %VENV_DIR%\\Scripts\\activate.bat && pip install -r requirements.txt'
+
+                // Ensure Python virtual environment is created
+                bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m venv venv'
+
+                // Confirm virtual environment folder exists
+                bat 'dir venv'
+
+                // Activate virtual environment and install dependencies
+                bat 'call venv\\Scripts\\activate.bat && pip install -r requirements.txt'
+
+                // Verify Python version inside virtual environment
+                bat 'call venv\\Scripts\\activate.bat && python --version'
+
+                // Confirm installed packages
+                bat 'call venv\\Scripts\\activate.bat && pip list'
             }
         }
 
