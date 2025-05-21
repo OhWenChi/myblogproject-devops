@@ -6,6 +6,15 @@ pipeline {
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                git credentialsId: 'github-cred', url: 'https://github.com/OhWenChi/myblogproject-devops.git', branch: 'main'
+                bat 'git fetch --all'
+                bat 'git reset --hard origin/main'
+                bat 'git pull origin main'
+            }
+        }
+        
         stage('Build') {
             steps {
                 echo '=== Build Stage ==='
