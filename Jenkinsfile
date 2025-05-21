@@ -55,23 +55,25 @@ pipeline {
             steps {
                 echo '=== Code Quality Stage ==='
 
-                // Ensure Python is recognized by Jenkins
+                // Ensure Python is recognized
                 bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" --version'
 
                 // Activate virtual environment
                 bat 'call venv\\Scripts\\activate.bat'
 
-                // Upgrade pip to avoid issues
-                bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m ensurepip'
+                // Upgrade pip
                 bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install --upgrade pip'
 
-                // Install required dependencies (flake8, black for formatting)
+                // Install and run flake8, excluding unnecessary directories
                 bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install flake8 black'
 
-                // Run `black` for automatic code formatting (optional but recommended)
-                bat 'call venv\\Scripts\\activate.bat && black .'
+                // Ensure PATH includes the correct directory for black
+                bat 'set PATH=%PATH%;C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\Scripts'
 
-                // Run `flake8` to check linting issues, excluding `venv` and third-party libraries
+                // Run black through Python to ensure execution
+                bat 'call venv\\Scripts\\activate.bat && python -m black .'
+
+                // Run flake8 for linting
                 bat 'call venv\\Scripts\\activate.bat && flake8 --exclude=venv,pip_vendor .'
             }
         }
