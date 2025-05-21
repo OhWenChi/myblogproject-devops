@@ -55,26 +55,20 @@ pipeline {
             steps {
                 echo '=== Code Quality Stage ==='
 
-                // Ensure Python is recognized
-                bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" --version'
-
                 // Activate virtual environment
                 bat 'call venv\\Scripts\\activate.bat'
 
                 // Upgrade pip
-                bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install --upgrade pip'
+                bat 'python -m pip install --upgrade pip'
 
-                // Install and run flake8, excluding unnecessary directories
-                bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pip install flake8 black'
+                // Install `black` inside virtual environment
+                bat 'python -m pip install black'
 
-                // Ensure PATH includes the correct directory for black
-                bat 'set PATH=%PATH%;C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\Scripts'
+                // Run black formatting
+                bat 'python -m black .'
 
-                // Run black through Python to ensure execution
-                bat 'call venv\\Scripts\\activate.bat && python -m black .'
-
-                // Run flake8 for linting
-                bat 'call venv\\Scripts\\activate.bat && flake8 --exclude=venv,pip_vendor .'
+                // Run flake8 linting
+                bat 'flake8 --exclude=venv,pip_vendor .'
             }
         }
 
