@@ -55,19 +55,26 @@ pipeline {
             steps {
                 echo '=== Code Quality Stage ==='
 
+                // Ensure Python is recognized before activating the virtual environment
+                bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" --version'
+
+                // Set Python path explicitly to avoid Jenkins recognition issues
+                bat 'set PATH=%PATH%;C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313'
+
                 // Activate virtual environment
                 bat 'call venv\\Scripts\\activate.bat'
 
-                // Upgrade pip
+                // Upgrade pip inside the virtual environment
+                bat 'python -m ensurepip'
                 bat 'python -m pip install --upgrade pip'
 
-                // Install `black` inside virtual environment
-                bat 'python -m pip install black'
+                // Install `black` and `flake8` inside virtual environment
+                bat 'python -m pip install black flake8'
 
-                // Run black formatting
+                // Run black formatting using Python module execution
                 bat 'python -m black .'
 
-                // Run flake8 linting
+                // Run flake8 linting excluding virtual environment and unnecessary directories
                 bat 'flake8 --exclude=venv,pip_vendor .'
             }
         }
