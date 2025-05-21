@@ -33,7 +33,12 @@ pipeline {
         stage('Test') {
             steps {
                 echo '=== Test Stage ==='
-                bat 'call venv\\Scripts\\activate.bat && python -m unittest discover tests'
+
+                // Verify test directory exists
+                bat 'dir tests'
+
+                // Activate virtual environment and run tests
+                bat 'call venv\\Scripts\\activate.bat && python -m unittest discover -s tests -p "*.py"'
             }
         }
 
