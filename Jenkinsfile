@@ -6,6 +6,7 @@ pipeline {
         PYTHON_HOME = "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313"
         IMAGE_NAME = "myblogapp:latest"
         STAGING_CONTAINER_NAME = "myblogapp-staging"
+        PROD_CONTAINER_NAME = "myblogapp-prod" //
     }
 
     stages {
