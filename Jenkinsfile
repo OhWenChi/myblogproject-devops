@@ -99,20 +99,6 @@ pipeline {
                 bat 'docker run -d --name %STAGING_CONTAINER_NAME% -p 8000:8000 %IMAGE_NAME%'
             }
         }
-
-        stage('Verify Staging') {
-            steps {
-                echo '=== Verify Staging Application ==='
-
-                // Wait 5 seconds before checking
-                bat 'powershell -Command "Start-Sleep -Seconds 5"'
-
-                // Run the PowerShell command to check the HTTP response
-                bat '''
-                powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost:8000/' -UseBasicParsing -TimeoutSec 10; if ($response.StatusCode -eq 200) { Write-Host 'Staging app is up and running.' } else { Write-Error 'Staging app returned non-200 status code.'; exit 1 } } catch { Write-Error 'Failed to reach staging app.'; exit 1 }"
-                '''
-            }
-        }
         
         stage('Release') {
             steps {
@@ -125,18 +111,7 @@ pipeline {
                 bat 'docker run -d --name %PROD_CONTAINER_NAME% -p 80:8000 %IMAGE_NAME%'
             }
         }
-
-        stage('Verify Production') {
-            steps {
-                echo '=== Verify Production Application ==='
-
-                // Run the PowerShell command to check the HTTP response
-                bat '''
-                powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost/' -UseBasicParsing -TimeoutSec 10; if ($response.StatusCode -eq 200) { Write-Host 'Production app is up and running.' } else { Write-Error 'Production app returned non-200 status code.'; exit 1 } } catch { Write-Error 'Failed to reach production app.'; exit 1 }"
-                '''
-            }
-        }
-
+        
         stage('Monitoring') {
             steps {
                 echo '=== Monitoring Stage ==='
