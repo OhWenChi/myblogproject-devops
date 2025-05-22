@@ -57,7 +57,7 @@ pipeline {
                 echo '=== Code Quality Stage ==='
 
                 // Activate venv and install tools
-                bat 'call venv\\Scripts\\activate.bat && pip install --upgrade pip'
+                bat 'venv\\Scripts\\python.exe -m pip install --upgrade pip'
                 bat 'call venv\\Scripts\\activate.bat && pip install black flake8'
 
                 // Format and lint only the source directory
