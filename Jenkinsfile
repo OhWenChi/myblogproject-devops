@@ -55,6 +55,8 @@ pipeline {
         stage('Code Quality') {
             steps {
                 echo '=== Code Quality Stage ==='
+                
+                bat 'dir'
 
                 // Activate venv and install tools
                 bat 'venv\\Scripts\\python.exe -m pip install --upgrade pip'
