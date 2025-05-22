@@ -4,9 +4,8 @@ pipeline {
     environment {
         VENV_DIR = "venv"
         PYTHON_HOME = "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313"
-        STAGING_CONTAINER_NAME = "myblog-staging"
-        PROD_CONTAINER_NAME = "myblog-prod"
         IMAGE_NAME = "myblogapp:latest"
+        STAGING_CONTAINER_NAME = "myblogapp-staging"
     }
 
     stages {
