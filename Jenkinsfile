@@ -100,6 +100,31 @@ pipeline {
             }
         }
 
+        stage('Verify Staging') {
+            steps {
+                echo '=== Verify Staging Application ==='
+                // Wait a bit to allow container to start (optional but recommended)
+                bat 'timeout /t 5 /nobreak >nul'
+
+                // Check if app responds with HTTP 200 on localhost:8000
+                bat '''
+                powershell -Command "
+                try {
+                    $response = Invoke-WebRequest -Uri http://localhost:8000/ -UseBasicParsing -TimeoutSec 10
+                    if ($response.StatusCode -eq 200) {
+                        Write-Host 'Staging app is up and running.'
+                    } else {
+                        Write-Error 'Staging app returned non-200 status code.'
+                        exit 1
+                    }
+                } catch {
+                    Write-Error 'Failed to reach staging app.'
+                    exit 1
+                }"
+                '''
+            }
+        }
+
         stage('Release') {
             steps {
                 echo '=== Release Stage (Promote to Production) ==='
@@ -109,6 +134,31 @@ pipeline {
 
                 // Run the production container (mapping to port 80)
                 bat 'docker run -d --name %PROD_CONTAINER_NAME% -p 80:8000 %IMAGE_NAME%'
+            }
+        }
+
+        stage('Verify Production') {
+            steps {
+                echo '=== Verify Production Application ==='
+                // Wait a bit for container to start
+                bat 'timeout /t 5 /nobreak >nul'
+
+                // Check if app responds with HTTP 200 on localhost:80
+                bat '''
+                powershell -Command "
+                try {
+                    $response = Invoke-WebRequest -Uri http://localhost/ -UseBasicParsing -TimeoutSec 10
+                    if ($response.StatusCode -eq 200) {
+                        Write-Host 'Production app is up and running.'
+                    } else {
+                        Write-Error 'Production app returned non-200 status code.'
+                        exit 1
+                    }
+                } catch {
+                    Write-Error 'Failed to reach production app.'
+                    exit 1
+                }"
+                '''
             }
         }
 
