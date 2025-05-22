@@ -2,29 +2,39 @@ pipeline {
     agent any
 
     environment {
-        VENV_DIR = "venv"
-        PYTHON_HOME = "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313"
-        IMAGE_NAME = "myblogapp:latest"
-        STAGING_CONTAINER_NAME = "myblogapp-staging"
-        PROD_CONTAINER_NAME = "myblogapp-prod" //
+        // Define environment variables for reuse throughout the pipeline
+        VENV_DIR = "venv"  // Virtual environment directory
+        PYTHON_HOME = "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313"  // Path to Python interpreter
+        IMAGE_NAME = "myblogapp:latest"  // Docker image name for the application
+        STAGING_CONTAINER_NAME = "myblogapp-staging"  // Name of the staging Docker container
+        PROD_CONTAINER_NAME = "myblogapp-prod" //  // Name of the production Docker container
     }
 
     stages {
         stage('Checkout') {
             steps {
+                // Clone the GitHub repository and reset to the latest code on main
                 git credentialsId: 'github-cred', url: 'https://github.com/OhWenChi/myblogproject-devops.git', branch: 'main'
-                bat 'git fetch --all'
-                bat 'git reset --hard origin/main'
-                bat 'git pull origin main'
+                bat 'git fetch --all'  // Fetch all branches
+                bat 'git reset --hard origin/main'  // Hard reset to the latest main branch
+                bat 'git pull origin main'  // Pull latest changes
             }
         }
 
         stage('Build') {
             steps {
                 echo '=== Build Stage ==='
+
+                // Create Python virtual environment
                 bat '"%PYTHON_HOME%\\python.exe" -m venv %VENV_DIR%'
+
+                // Verify virtual environment directory
                 bat 'dir %VENV_DIR%'
+
+                // Activate the virtual environment and install dependencies
                 bat 'call %VENV_DIR%\\Scripts\\activate.bat && pip install -r requirements.txt'
+
+                // Confirm Python and pip versions installed
                 bat 'call %VENV_DIR%\\Scripts\\activate.bat && python --version'
                 bat 'call %VENV_DIR%\\Scripts\\activate.bat && pip list'
             }
@@ -32,13 +42,18 @@ pipeline {
 
         stage('Test') {
             steps {
-                // echo '=== Test Stage ==='
-                // bat 'dir tests'
-                // bat 'call %VENV_DIR%\\Scripts\\activate.bat && python -m unittest discover -s tests -p "*.py"'
                 echo '=== Test Stage with Coverage ==='
+
+                // Install coverage tool to measure test coverage
                 bat 'call %VENV_DIR%\\Scripts\\activate.bat && pip install coverage'
+
+                // Run all unit tests and collect coverage data
                 bat 'call %VENV_DIR%\\Scripts\\activate.bat && coverage run -m unittest discover -s tests -p "*.py"'
+
+                // Display coverage summary in console
                 bat 'call %VENV_DIR%\\Scripts\\activate.bat && coverage report'
+
+                // Generate HTML coverage report
                 bat 'call %VENV_DIR%\\Scripts\\activate.bat && coverage html'
             }
         }
@@ -46,8 +61,14 @@ pipeline {
         stage('Code Quality') {
             steps {
                 echo '=== Code Quality Stage ==='
+
+                // Install code formatting and linting tools
                 bat 'call %VENV_DIR%\\Scripts\\activate.bat && pip install black flake8'
+
+                // Format code using Black (autoformatter)
                 bat 'call %VENV_DIR%\\Scripts\\activate.bat && black main.py forms.py tests'
+
+                // Run flake8 to check for style and complexity issues
                 bat 'call %VENV_DIR%\\Scripts\\activate.bat && flake8 main.py forms.py tests || exit 0'
             }
         }
@@ -55,7 +76,11 @@ pipeline {
         stage('Security') {
             steps {
                 echo '=== Security Stage ==='
+
+                // Install the Safety tool to scan dependencies for known vulnerabilities
                 bat 'call %VENV_DIR%\\Scripts\\activate.bat && pip install safety'
+
+                // Run full security check
                 bat 'call %VENV_DIR%\\Scripts\\activate.bat && safety check --full-report || exit 0'
             }
         }
@@ -63,8 +88,14 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo '=== Deploy Stage (Docker Staging) ==='
+
+                // Build Docker image for the application
                 bat 'docker build -t %IMAGE_NAME% .'
+
+                // Remove existing staging container if it exists
                 bat 'docker rm -f %STAGING_CONTAINER_NAME% || exit 0'
+
+                // Run the new Docker container for staging
                 bat 'docker run -d --name %STAGING_CONTAINER_NAME% -p 8000:8000 %IMAGE_NAME%'
             }
         }
@@ -72,18 +103,20 @@ pipeline {
         stage('Release') {
             steps {
                 echo '=== Release Stage (Promote to Production) ==='
+
+                // Remove existing production container if it exists
                 bat 'docker rm -f %PROD_CONTAINER_NAME% || exit 0'
+
+                // Run the production container (mapping to port 80)
                 bat 'docker run -d --name %PROD_CONTAINER_NAME% -p 80:8000 %IMAGE_NAME%'
             }
         }
 
         stage('Monitoring') {
             steps {
-                // echo '=== Monitoring Stage ==='
-                //echo 'Simulating integration with Datadog or New Relic...'
-                //echo 'Monitoring metrics: CPU, memory, response time, error rate...'
-                //echo 'Alerts configured to notify DevOps team on anomaly detection.'
                 echo '=== Monitoring Stage ==='
+
+                // Simulate monitoring setup
                 echo 'Simulating Datadog integration...'
                 echo 'If deployed to a cloud host, we would install the Datadog Agent:'
                 echo 'Command: docker run -d --name dd-agent -e DD_API_KEY=<your_api_key> datadog/agent:latest'
@@ -95,9 +128,11 @@ pipeline {
 
     post {
         success {
+            // Notify on successful pipeline run
             echo 'Pipeline executed successfully.'
         }
         failure {
+            // Notify on failure and advise to check logs
             echo 'Pipeline failed. Check logs for troubleshooting.'
         }
     }
