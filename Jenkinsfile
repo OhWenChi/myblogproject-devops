@@ -56,15 +56,18 @@ pipeline {
             steps {
                 echo '=== Code Quality Stage ==='
                 
+                // Show directory structure
                 bat 'dir'
 
-                // Activate venv and install tools
+                // Upgrade pip
                 bat 'venv\\Scripts\\python.exe -m pip install --upgrade pip'
+
+                // Install code quality tools
                 bat 'call venv\\Scripts\\activate.bat && pip install black flake8'
 
-                // Format and lint only the source directory
-                bat 'call venv\\Scripts\\activate.bat && black MyBlogProject'
-                bat 'call venv\\Scripts\\activate.bat && flake8 MyBlogProject --statistics --count'
+                // Run Black formatter and Flake8 linter on key files and folders
+                bat 'call venv\\Scripts\\activate.bat && black main.py forms.py tests'
+                bat 'call venv\\Scripts\\activate.bat && flake8 main.py forms.py tests'
             }
         }
 
