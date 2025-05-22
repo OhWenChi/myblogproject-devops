@@ -32,9 +32,14 @@ pipeline {
 
         stage('Test') {
             steps {
-                echo '=== Test Stage ==='
-                bat 'dir tests'
-                bat 'call %VENV_DIR%\\Scripts\\activate.bat && python -m unittest discover -s tests -p "*.py"'
+                // echo '=== Test Stage ==='
+                // bat 'dir tests'
+                // bat 'call %VENV_DIR%\\Scripts\\activate.bat && python -m unittest discover -s tests -p "*.py"'
+                echo '=== Test Stage with Coverage ==='
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && pip install coverage'
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && coverage run -m unittest discover -s tests -p "*.py"'
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && coverage report'
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && coverage html'
             }
         }
 
@@ -74,10 +79,16 @@ pipeline {
 
         stage('Monitoring') {
             steps {
+                // echo '=== Monitoring Stage ==='
+                //echo 'Simulating integration with Datadog or New Relic...'
+                //echo 'Monitoring metrics: CPU, memory, response time, error rate...'
+                //echo 'Alerts configured to notify DevOps team on anomaly detection.'
                 echo '=== Monitoring Stage ==='
-                echo 'Simulating integration with Datadog or New Relic...'
-                echo 'Monitoring metrics: CPU, memory, response time, error rate...'
-                echo 'Alerts configured to notify DevOps team on anomaly detection.'
+                echo 'Simulating Datadog integration...'
+                echo 'If deployed to a cloud host, we would install the Datadog Agent:'
+                echo 'Command: docker run -d --name dd-agent -e DD_API_KEY=<your_api_key> datadog/agent:latest'
+                echo 'Metrics Monitored: CPU, Memory, Response Time, Error Rate'
+                echo 'Alerts: Email/SMS alerts would be triggered on anomalies'
             }
         }
     }
