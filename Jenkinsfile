@@ -109,20 +109,7 @@ pipeline {
 
                 // Run the PowerShell command to check the HTTP response
                 bat '''
-                powershell -Command "
-                try {
-                    $response = Invoke-WebRequest -Uri 'http://localhost:8000/' -UseBasicParsing -TimeoutSec 10
-                    if ($response.StatusCode -eq 200) {
-                        Write-Host 'Staging app is up and running.'
-                    } else {
-                        Write-Error 'Staging app returned non-200 status code.'
-                        exit 1
-                    }
-                } catch {
-                    Write-Error 'Failed to reach staging app.'
-                    exit 1
-                }
-                "
+                powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost:8000/' -UseBasicParsing -TimeoutSec 10; if ($response.StatusCode -eq 200) { Write-Host 'Staging app is up and running.' } else { Write-Error 'Staging app returned non-200 status code.'; exit 1 } } catch { Write-Error 'Failed to reach staging app.'; exit 1 }"
                 '''
             }
         }
