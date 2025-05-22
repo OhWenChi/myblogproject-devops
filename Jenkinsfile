@@ -67,7 +67,7 @@ pipeline {
 
                 // Run Black formatter and Flake8 linter on key files and folders
                 bat 'call venv\\Scripts\\activate.bat && black main.py forms.py tests'
-                bat 'call venv\\Scripts\\activate.bat && flake8 main.py forms.py tests'
+                bat 'call venv\\Scripts\\activate.bat && flake8 main.py forms.py tests --max-line-length=120'
             }
         }
 
