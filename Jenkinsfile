@@ -103,10 +103,6 @@ pipeline {
         stage('Verify Staging') {
             steps {
                 echo '=== Verify Staging Application ==='
-                // Wait a bit to allow container to start (optional but recommended)
-                bat 'timeout /t 5 /nobreak >nul'
-
-                // Check if app responds with HTTP 200 on localhost:8000
                 bat '''
                 powershell -Command "
                 try {
@@ -124,7 +120,7 @@ pipeline {
                 '''
             }
         }
-
+        
         stage('Release') {
             steps {
                 echo '=== Release Stage (Promote to Production) ==='
@@ -140,8 +136,6 @@ pipeline {
         stage('Verify Production') {
             steps {
                 echo '=== Verify Production Application ==='
-                // Wait a bit for container to start
-                bat 'timeout /t 5 /nobreak >nul'
 
                 // Check if app responds with HTTP 200 on localhost:80
                 bat '''
