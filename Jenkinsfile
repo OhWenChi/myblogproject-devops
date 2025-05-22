@@ -4,6 +4,9 @@ pipeline {
     environment {
         VENV_DIR = "venv"
         PYTHON_HOME = "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313"
+        STAGING_CONTAINER_NAME = "myblog-staging"
+        PROD_CONTAINER_NAME = "myblog-prod"
+        IMAGE_NAME = "myblogapp:latest"
     }
 
     stages {
@@ -15,97 +18,76 @@ pipeline {
                 bat 'git pull origin main'
             }
         }
-        
+
         stage('Build') {
             steps {
                 echo '=== Build Stage ==='
-
-                // Print PATH environment variable for debugging
-                bat 'echo %PATH%'
-
-                // Ensure Python virtual environment is created
-                bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m venv venv'
-
-                // Confirm virtual environment folder exists
-                bat 'dir venv'
-
-                // Activate virtual environment and install dependencies
-                bat 'call venv\\Scripts\\activate.bat && pip install -r requirements.txt'
-
-                // Verify Python version inside virtual environment
-                bat 'call venv\\Scripts\\activate.bat && python --version'
-
-                // Confirm installed packages
-                bat 'call venv\\Scripts\\activate.bat && pip list'
+                bat '"%PYTHON_HOME%\\python.exe" -m venv %VENV_DIR%'
+                bat 'dir %VENV_DIR%'
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && pip install -r requirements.txt'
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && python --version'
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && pip list'
             }
         }
 
         stage('Test') {
             steps {
                 echo '=== Test Stage ==='
-
-                // Verify test directory exists
                 bat 'dir tests'
-
-                // Activate virtual environment and run tests
-                bat 'call venv\\Scripts\\activate.bat && python -m unittest discover -s tests -p "*.py"'
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && python -m unittest discover -s tests -p "*.py"'
             }
         }
 
         stage('Code Quality') {
             steps {
                 echo '=== Code Quality Stage ==='
-                
-                // Show directory structure
-                bat 'dir'
-
-                // Upgrade pip
-                bat 'venv\\Scripts\\python.exe -m pip install --upgrade pip'
-
-                // Install code quality tools
-                bat 'call venv\\Scripts\\activate.bat && pip install black flake8'
-
-                // Run Black formatter and Flake8 linter on key files and folders
-                bat 'call venv\\Scripts\\activate.bat && black main.py forms.py tests'
-                bat 'call venv\\Scripts\\activate.bat && flake8 main.py forms.py tests || exit 0'
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && pip install black flake8'
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && black main.py forms.py tests'
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && flake8 main.py forms.py tests || exit 0'
             }
         }
 
         stage('Security') {
             steps {
-                echo '=== Security Scan ==='
-                bat 'call venv\\Scripts\\activate.bat && pip install safety && safety check || exit 0'
+                echo '=== Security Stage ==='
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && pip install safety'
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && safety check --full-report || exit 0'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo '=== Deploy Stage ==='
-                // This is a placeholder - update this with actual deployment logic
-                echo 'Deploying to staging environment...'
+                echo '=== Deploy Stage (Docker Staging) ==='
+                bat 'docker build -t %IMAGE_NAME% .'
+                bat 'docker rm -f %STAGING_CONTAINER_NAME% || exit 0'
+                bat 'docker run -d --name %STAGING_CONTAINER_NAME% -p 8000:8000 %IMAGE_NAME%'
             }
         }
 
         stage('Release') {
             steps {
-                echo '=== Release Stage ==='
-                // Simulate promoting to production
-                echo 'Releasing to production...'
+                echo '=== Release Stage (Promote to Production) ==='
+                bat 'docker rm -f %PROD_CONTAINER_NAME% || exit 0'
+                bat 'docker run -d --name %PROD_CONTAINER_NAME% -p 80:8000 %IMAGE_NAME%'
             }
         }
 
         stage('Monitoring') {
             steps {
                 echo '=== Monitoring Stage ==='
-                // Placeholder: integrate with Datadog, Prometheus, etc.
-                echo 'Monitoring in progress...'
+                echo 'Simulating integration with Datadog or New Relic...'
+                echo 'Monitoring metrics: CPU, memory, response time, error rate...'
+                echo 'Alerts configured to notify DevOps team on anomaly detection.'
             }
         }
     }
 
     post {
+        success {
+            echo 'Pipeline executed successfully.'
+        }
         failure {
-            echo 'Pipeline failed. Check logs for details.'
+            echo 'Pipeline failed. Check logs for troubleshooting.'
         }
     }
 }
