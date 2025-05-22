@@ -56,16 +56,13 @@ pipeline {
             steps {
                 echo '=== Code Quality Stage ==='
 
-                // Ensure pip is up to date using full Python path
-                bat '"%PYTHON_HOME%\\python.exe" -m ensurepip'
-                bat '"%PYTHON_HOME%\\python.exe" -m pip install --upgrade pip'
+                // Activate venv and install tools
+                bat 'call venv\\Scripts\\activate.bat && pip install --upgrade pip'
+                bat 'call venv\\Scripts\\activate.bat && pip install black flake8'
 
-                // Install tools inside virtual environment
-                bat 'call %VENV_DIR%\\Scripts\\activate.bat && pip install black flake8'
-
-                // Run code formatting and linting
-                bat 'call %VENV_DIR%\\Scripts\\activate.bat && python -m black .'
-                bat 'call %VENV_DIR%\\Scripts\\activate.bat && flake8 --exclude=venv,pip_vendor .'
+                // Format and lint only the source directory
+                bat 'call venv\\Scripts\\activate.bat && black MyBlogProject'
+                bat 'call venv\\Scripts\\activate.bat && flake8 MyBlogProject --statistics --count'
             }
         }
 
