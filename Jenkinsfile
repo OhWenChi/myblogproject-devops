@@ -7,7 +7,7 @@ pipeline {
         PYTHON_HOME = "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313"  // Path to Python interpreter
         IMAGE_NAME = "myblogapp:latest"  // Docker image name for the application
         STAGING_CONTAINER_NAME = "myblogapp-staging"  // Name of the staging Docker container
-        PROD_CONTAINER_NAME = "myblogapp-prod" //  // Name of the production Docker container
+        PROD_CONTAINER_NAME = "myblogapp-prod" // Name of the production Docker container
     }
 
     stages {
@@ -130,21 +130,9 @@ pipeline {
             steps {
                 echo '=== Verify Production Application ==='
 
-                // Check if app responds with HTTP 200 on localhost:80
+                // Run the PowerShell command to check the HTTP response
                 bat '''
-                powershell -Command "
-                try {
-                    $response = Invoke-WebRequest -Uri http://localhost/ -UseBasicParsing -TimeoutSec 10
-                    if ($response.StatusCode -eq 200) {
-                        Write-Host 'Production app is up and running.'
-                    } else {
-                        Write-Error 'Production app returned non-200 status code.'
-                        exit 1
-                    }
-                } catch {
-                    Write-Error 'Failed to reach production app.'
-                    exit 1
-                }"
+                powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost/' -UseBasicParsing -TimeoutSec 10; if ($response.StatusCode -eq 200) { Write-Host 'Production app is up and running.' } else { Write-Error 'Production app returned non-200 status code.'; exit 1 } } catch { Write-Error 'Failed to reach production app.'; exit 1 }"
                 '''
             }
         }
