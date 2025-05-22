@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         VENV_DIR = "venv"
+        PYTHON_HOME = "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313"
     }
 
     stages {
@@ -55,27 +56,16 @@ pipeline {
             steps {
                 echo '=== Code Quality Stage ==='
 
-                // Ensure Python is recognized before activating the virtual environment
-                bat '"C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" --version'
+                // Ensure pip is up to date using full Python path
+                bat '"%PYTHON_HOME%\\python.exe" -m ensurepip'
+                bat '"%PYTHON_HOME%\\python.exe" -m pip install --upgrade pip'
 
-                // Set Python path explicitly to avoid Jenkins recognition issues
-                bat 'set PATH=%PATH%;C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python313'
+                // Install tools inside virtual environment
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && pip install black flake8'
 
-                // Activate virtual environment
-                bat 'call venv\\Scripts\\activate.bat'
-
-                // Upgrade pip inside the virtual environment
-                bat 'python -m ensurepip'
-                bat 'python -m pip install --upgrade pip'
-
-                // Install `black` and `flake8` inside virtual environment
-                bat 'python -m pip install black flake8'
-
-                // Run black formatting using Python module execution
-                bat 'python -m black .'
-
-                // Run flake8 linting excluding virtual environment and unnecessary directories
-                bat 'flake8 --exclude=venv,pip_vendor .'
+                // Run code formatting and linting
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && python -m black .'
+                bat 'call %VENV_DIR%\\Scripts\\activate.bat && flake8 --exclude=venv,pip_vendor .'
             }
         }
 
